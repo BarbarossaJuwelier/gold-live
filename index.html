@@ -401,20 +401,6 @@ main{position:relative;z-index:1;max-width:640px;margin:0 auto;padding-inline:16
 .ak-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
 .ak-abz{display:inline-flex;align-items:center;gap:9px;padding:8px 12px 8px 13px;border-radius:12px;border:1px solid color-mix(in srgb,var(--gold) 45%,var(--line));background:color-mix(in srgb,var(--gold) 9%,var(--card2));font:inherit;color:var(--fg);cursor:pointer;transition:transform .2s var(--spring)}
 .ak-abz:active{transform:scale(.96)}
-.dm{padding:14px 14px 12px}
-.dm-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px}
-.dm .ak-r .a-l b{font-size:15px}
-.dm .ak-r .a-l em{white-space:normal;overflow:visible;line-height:1.25}
-.dm-kn{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:8px;margin-top:12px}
-.dm-knl{display:flex;flex-direction:column;gap:5px;padding:9px 11px;border:1px solid var(--line);border-radius:12px;background:var(--card2);min-width:0}
-.dm-knl>span,.dm-knr>span{font-size:9.5px;font-weight:650;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3)}
-.dm-knf{display:flex;align-items:baseline;gap:6px}
-.dm-knf input{flex:1;min-width:0;width:0;background:none;border:0;outline:0;color:var(--fg);font-family:var(--f-num);font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;padding:0}
-.dm-knf em{font-style:normal;font-size:13px;font-weight:650;color:var(--fg3)}
-.dm-knr{display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:5px;padding:9px 11px;border:1px solid var(--line);border-radius:12px;min-width:0}
-.dm-knr b{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
-.dm-grand b{font-size:24px}
-.dm-note{margin:10px 2px 0}
 .ak-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
 .ak-head>div{min-width:0}
 .kd-sw{flex:none;margin:0 2px 3px;padding:5px 5px 5px 10px;font-size:12px}
@@ -703,6 +689,11 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;bac
 .scrim.on{opacity:1;pointer-events:auto}
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;max-width:640px;margin:0 auto;background:var(--card);border-radius:28px 28px 0 0;border:1px solid var(--line2);padding:10px 18px calc(22px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .45s var(--ease);max-height:88vh;overflow:auto}
 .sheet.on{transform:none}
+.sheet{overscroll-behavior:contain;touch-action:pan-y}
+.sheet.drag{transition:none}
+.grab{cursor:grab}
+.sh-x{position:sticky;top:0;float:right;margin:-4px -6px 0 0;z-index:3;width:34px;height:34px;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--fg2);display:grid;place-items:center;font-size:20px;line-height:1;cursor:pointer}
+.sh-x:active{transform:scale(.92)}
 .grab{width:38px;height:5px;border-radius:3px;background:var(--line2);margin:0 auto 14px}
 .sheet h3{margin:0 0 4px;font-size:20px;letter-spacing:-.02em}
 .sheet p{color:var(--fg2);font-size:13.5px;margin:0 0 14px;line-height:1.5}
@@ -857,13 +848,6 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;bac
   <!-- MÜNZEN -->
   <section class="screen" id="s-muenzen" aria-label="Münzen">
     <div><h1 class="h1">Münzen</h1><p class="sub" id="coinSub">Goldmünzen mit Feingehalt und Börsenwert</p></div>
-    <article class="card dm" id="dmCard">
-      <div class="dm-top"><span class="eyebrow">DM-Münzen</span><span class="ak-spot" id="dmSpot"></span></div>
-      <div id="dmTab"></div>
-      <div class="dm-kn"><label class="dm-knl"><span>Kupfernickel · DM-Betrag</span><span class="dm-knf"><input id="dmKn" inputmode="decimal" autocomplete="off" enterkeyhint="done" placeholder="0,00" aria-label="Kupfernickel-Münzen in DM"><em>DM</em></span></label><div class="dm-knr"><span>in Euro</span><b id="dmKnE">–</b></div></div>
-      <div class="ak-grand dm-grand"><span>DM gesamt in Euro</span><b id="dmSum">–</b></div>
-      <p class="note dm-note">5 DM Kursmünze und 10 DM Gedenkmünzen nach Silbergehalt zum Börsenkurs, ohne Abzug. Kupfernickel zum festen Umtauschkurs der Bundesbank: 1 € = 1,95583 DM. Gewichte bitte einmal gegenprüfen.</p>
-    </article>
     <div class="search-wrap">
       <label class="search" for="coinQ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
         <input id="coinQ" type="search" placeholder="Münze suchen, z. B. Krügerrand" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="Münze suchen">
@@ -1031,6 +1015,7 @@ function recordTicks(){
   if(now-tkSaved>60000){ tkSaved=now; ls.set(TK_KEY,TICKS); }
 }
 addEventListener('visibilitychange',()=>{ if(document.hidden) ls.set(TK_KEY,TICKS); });
+const STALE_MS=20*60e3; // älter als 20 Minuten laut Quelle = kein Live-Kurs (z. B. Wochenende, Börse zu)
 const LIVE_URL = s=>'https://api.gold-api.com/price/'+s+'/EUR';
 let busy=false;
 async function fetchLive(){
@@ -1039,12 +1024,15 @@ async function fetchLive(){
   const ctl = new AbortController(); const to=setTimeout(()=>ctl.abort(),4500);
   try{
     const res = await Promise.all(['XAU','XAG','XPT','XPD'].map(s=>fetch(LIVE_URL(s),{signal:ctl.signal,cache:'no-store'}).then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })));
-    const now=new Date().toISOString();
-    res.forEach(j=>{ if(j && SYM2KEY[j.symbol] && isFinite(j.price) && j.price>0){ P.base[j.symbol]={v:j.price,src:'gold-api.com',at:now,kind:'live'}; } });
+    const now=new Date().toISOString(), nowMs=Date.now(); let goldFresh=true;
+    res.forEach(j=>{ if(j && SYM2KEY[j.symbol] && isFinite(j.price) && j.price>0){
+      const up=Date.parse(j.updatedAt), old=isFinite(up)&&nowMs-up>STALE_MS; // Quelle meldet alten Kursstand: nicht als live zeigen
+      if(old&&j.symbol==='XAU') goldFresh=false;
+      P.base[j.symbol]=old?{v:j.price,src:'gold-api.com · Kursstand',at:new Date(up).toISOString(),kind:'stand'}:{v:j.price,src:'gold-api.com',at:now,kind:'live'}; } });
     const fx = res[0] && res[0].exchangeRate; // USD→EUR
     if(isFinite(fx) && fx>0) P.fx = {v:1/fx, src:'gold-api.com', at:now, kind:'live'};
     if(isFinite(fx) && fx>0) P.base.SN = {v:TIN.usdT*fx/1000, src:TIN.src+', umgerechnet live', at:P.base.SN.at, kind:'stand'};
-    P.liveOk=true; P.everLive=true; P.lastLive=Date.now();
+    P.liveOk=goldFresh; if(goldFresh){ P.everLive=true; P.lastLive=Date.now(); }
     // erster Live-Abruf vergleicht nicht mit dem alten Stand-Kurs
     PANES.forEach((k,i)=>{ const d=ovVal(k)[0]-before[i]; P.dir[k]=!wasLive||Math.abs(d)<1e-9?0:Math.sign(d); });
     P.dHero=wasLive?price('XAU').v-hb:0;
@@ -1470,7 +1458,7 @@ let openCoinId=null, openSi=0;
 function openCoin(id,si=0){
   const c=COIN[id]; openCoinId=id; openSi=si; const z=c.sizes[si];
   const canPhoto = !!(PH.assets && S.db) || !IN_ARTIFACT;
-  openSheet(`<div class="flip-stage"><div class="tilt" id="tilt"><div class="flip" id="flip" role="button" aria-label="Münze umdrehen"><div class="face front"><div class="coin">${coinFace(c,si)}</div></div><div class="face back"><div class="coin">${coinBackSVG(c,si)}</div></div></div></div></div>
+  openSheet(`<button class="sh-x" id="shX" aria-label="Schließen">×</button><div class="flip-stage"><div class="tilt" id="tilt"><div class="flip" id="flip" role="button" aria-label="Münze umdrehen"><div class="face front"><div class="coin">${coinFace(c,si)}</div></div><div class="face back"><div class="coin">${coinBackSVG(c,si)}</div></div></div></div></div>
     <p class="hint" style="margin:0 0 10px">Antippen zum Umdrehen</p>
     <h3>${esc(c.n)}</h3><p style="margin-bottom:6px">${esc(c.c)} · ${esc(c.y)} · ${c.cat==='anlage'?'Anlagemünze':'Historische Umlaufmünze'}</p>
     ${c.sizes.length>1?`<div class="seg" id="sizeSeg"><span class="thumb"></span>${c.sizes.map((s,i)=>`<button data-i="${i}" class="${i===si?'on':''}">${esc(s[0])}</button>`).join('')}</div>`:''}
@@ -1484,6 +1472,7 @@ function openCoin(id,si=0){
     <div class="btns">
       ${canPhoto?`<button class="btn btn-ghost${photoSrc(c.id)?'':' full'}" id="coinPhoto">${photoSrc(c.id)?'Neues Foto':'Foto aufnehmen'}</button>${photoSrc(c.id)?'<button class="btn btn-ghost" id="coinPhotoDel">Foto entfernen</button>':''}`:''}
     </div>`);
+  $('#shX').addEventListener('click',()=>{ haptic(); closeSheet(); });
   const flip=$('#flip'); flip.addEventListener('click',()=>{ haptic(); flip.classList.toggle('turned'); });
   const tilt=$('#tilt'), stage=tilt.parentElement;
   stage.addEventListener('pointermove',e=>{ if(e.pointerType!=='mouse') return; const r=stage.getBoundingClientRect(); const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5; tilt.style.transform=`rotateY(${x*22}deg) rotateX(${-y*22}deg)`; });
@@ -1513,6 +1502,20 @@ $('#photoIn').addEventListener('change',async e=>{
 function openSheet(html){ $('#sheetBody').innerHTML=html; $('#scrim').classList.add('on'); $('#sheet').classList.add('on'); }
 function closeSheet(){ mpK=null; $('#scrim').classList.remove('on'); $('#sheet').classList.remove('on'); openCoinId=null; const sv=document.querySelector('[data-sv]'); sv&&sv.removeAttribute('data-sv'); }
 $('#scrim').addEventListener('click',closeSheet);
+(()=>{ // Fenster mit dem Finger nach unten wegwischen
+  const sh=$('#sheet'), sc=$('#scrim'); let y0=0, dy=0, t0=0, arm=false, drag=false, blockClick=0;
+  sh.addEventListener('touchstart',e=>{ arm=false; if(e.touches.length!==1||!sh.classList.contains('on')||e.target.closest('input,textarea,select')) return;
+    arm=sh.scrollTop<=0; y0=e.touches[0].clientY; dy=0; t0=Date.now(); drag=false; },{passive:true});
+  sh.addEventListener('touchmove',e=>{ if(!arm) return; const d=e.touches[0].clientY-y0;
+    if(!drag){ if(d>8&&sh.scrollTop<=0){ drag=true; sh.classList.add('drag'); } else { if(d<-8) arm=false; return; } }
+    e.preventDefault(); dy=Math.max(0,d); sh.style.transform=`translateY(${dy}px)`; sc.style.opacity=String(Math.max(0,1-dy/420)); },{passive:false});
+  const end=()=>{ if(!drag){ arm=false; return; } drag=false; arm=false; blockClick=Date.now();
+    const v=dy/Math.max(1,Date.now()-t0); sh.classList.remove('drag'); sh.style.transform=''; sc.style.opacity='';
+    if(dy>80||v>.5) closeSheet(); };
+  sh.addEventListener('touchend',end); sh.addEventListener('touchcancel',end);
+  sh.addEventListener('click',e=>{ if(Date.now()-blockClick<350){ e.stopPropagation(); e.preventDefault(); } },true);
+  addEventListener('keydown',e=>{ if(e.key==='Escape'&&sh.classList.contains('on')) closeSheet(); });
+})();
 function openSourceSheet(){
   const rows=['XAU','XAG','XPT','XPD','SN'].map(s=>{ const p=price(s); const k=s==='SN'?'zinn':SYM2KEY[s]; return `<button class="tot-row" data-mk="${k}" style="width:100%;font:inherit;color:inherit;text-align:left;cursor:pointer"><span>${METALS[k].name}</span><b>${eur(p.v)} ${s==='SN'?'/kg':'/oz'} · ${p.kind==='live'?'live':p.kind==='manual'?'manuell':'Stand'} ${tmShort(p.at)} ›</b></button>`; }).join('');
   const msg = P.liveOk ? `Kurse kommen live von gold-api.com und werden alle 10 Sekunden neu geladen. Letzter Abruf: ${tm(P.lastLive)}.`
@@ -1797,33 +1800,10 @@ $('#hMkt').addEventListener('click',()=>{ const st=mktState(); toast((st.open?'G
 renderMkt(); setInterval(renderMkt,1000);
 
 /* ---------- Render ---------- */
-/* ---------- DM-Münzen: Silber nach Gehalt, Kupfernickel zum Umtauschkurs ---------- */
-const DM_RATE=1.95583; // 1 € = 1,95583 DM (fester Umtauschkurs)
-const DMC=[ // Gewichte und Feingehalt aus allgemeinem Münzwissen, von Theo gegenzuprüfen
-  {id:'5s',n:'5 DM',k:'1951–1974',w:'11,2 g · 625',g:11.2,f:625},
-  {id:'10a',n:'10 DM',k:'1970–1997',w:'15,5 g · 625',g:15.5,f:625},
-  {id:'10b',n:'10 DM',k:'1998–2001',w:'15,5 g · 925',g:15.5,f:925}];
-const dm=Object.assign({n:{},kn:''},ls.get('dm',{}));
-function buildDm(){
-  $('#dmTab').innerHTML=`<div class="ak-h"><span>Münze</span><span>€ je Stück</span><span>Anzahl</span><span>Betrag</span></div>`+DMC.map(c=>`<div class="ak-r"><span class="a-l"><b>${c.n}</b><em>${c.k}</em><em>${c.w}</em></span><span class="ak-p"><b data-dp="${c.id}">–</b></span><input class="ak-g" data-dn="${c.id}" inputmode="numeric" enterkeyhint="done" autocomplete="off" placeholder="0" value="${esc(dm.n[c.id]||'')}" aria-label="Anzahl ${c.n} ${c.k}"><b class="ak-m" data-dm="${c.id}">–</b></div>`).join('');
-  $('#dmTab').querySelectorAll('[data-dn]').forEach(i=>i.addEventListener('input',()=>{ dm.n[i.dataset.dn]=i.value; ls.set('dm',dm); renderDm(); }));
-  $('#dmKn').value=dm.kn; $('#dmKn').addEventListener('input',e=>{ dm.kn=e.target.value; ls.set('dm',dm); renderDm(); });
-  renderDm();
-}
-function renderDm(){
-  const p=price('XAG'), sg=perG('XAG'); let tot=0;
-  $('#dmSpot').innerHTML=`${p.kind==='manual'?'Manuell · ':''}${dt(p.at).slice(0,6)} · <b>${p.kind==='live'?tm(p.at):tmShort(p.at)} Uhr</b>`;
-  DMC.forEach(c=>{ const v=Math.round(c.g*c.f/1000*sg*100)/100, n=hfNum(dm.n[c.id]), el=$(`[data-dm="${c.id}"]`);
-    $(`[data-dp="${c.id}"]`).textContent=eur(v);
-    if(n>0){ const t=Math.round(v*n*100)/100; tot+=t; el.textContent=eur(t); el.className='ak-m on'; } else { el.textContent='–'; el.className='ak-m'; } });
-  const kn=hfNum(dm.kn), ke=kn>0?Math.round(kn/DM_RATE*100)/100:0; tot+=ke;
-  $('#dmKnE').textContent=kn>0?eur(ke):'–'; $('#dmSum').textContent=tot>0?eur(tot):'–';
-}
-buildDm();
 
 function render(){
   renderStatus(); renderHero(); renderMx(); renderHafner(); if(mpK) drawMp(false); if(cur==='ankauf') renderAk(); renderMsel(); renderGoldTiles(); renderMetals();
-  updateCoinValues(); renderDm();
+  updateCoinValues();
 }
 buildMsel(); buildMetals(); buildGoldTiles(); initUsegs(); render(); renderCoins(false);
 try{ localStorage.removeItem('gb.news'); }catch{}
